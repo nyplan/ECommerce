@@ -13,13 +13,17 @@ namespace ECommerce.API.Controllers
     {
         private readonly IProductReadRepository _productRead;
         private readonly IProductWriteRepository _productWrite;
-        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite)
+        private readonly IWebHostEnvironment _environment;
+
+        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite,
+            IWebHostEnvironment environment)
         {
             _productRead = productRead;
             _productWrite = productWrite;
+            _environment = environment;
         }
         [HttpGet]
-        public IActionResult Get([FromQuery]Pagination pagination)
+        public IActionResult Get([FromQuery] Pagination pagination)
         {
             var totalCount = _productRead.GetAll(false).Count();
             var products = _productRead.GetAll(false).Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(p => new
@@ -65,12 +69,32 @@ namespace ECommerce.API.Controllers
             return Ok();
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute]string id)
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
             await _productWrite.RemoveAsync(id);
             await _productWrite.SaveAsync();
-            return Ok(); 
+            return Ok();
         }
-        
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Upload()
+        {
+            string uploadPath = Path.Combine(_environment.WebRootPath, "resource/product-images");
+
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            Random r = new();
+            foreach (IFormFile file in Request.Form.Files)
+            {
+                string fullPath = Path.Combine(uploadPath, $"{r.Next()}{Path.GetExtension(file.FileName)}");
+
+                using FileStream stream = new(fullPath, FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(stream);
+                await stream.FlushAsync();
+            }
+            return Ok();
+        }
+
     }
 }
