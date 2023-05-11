@@ -1,4 +1,5 @@
 using ECommerce.Application.Validators.Products;
+using ECommerce.Infrastructure;
 using ECommerce.Infrastructure.Filters;
 using ECommerce.Persistence;
 using FluentValidation;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
+builder.Services.AddInfrastructureServices();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
