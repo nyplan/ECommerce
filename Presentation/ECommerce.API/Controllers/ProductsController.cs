@@ -14,14 +14,11 @@ namespace ECommerce.API.Controllers
     {
         private readonly IProductReadRepository _productRead;
         private readonly IProductWriteRepository _productWrite;
-        private readonly IWebHostEnvironment _environment;
-        private readonly IFileService _fileService
-        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite,
-            IWebHostEnvironment environment, IFileService fileService)
+        private readonly IFileService _fileService;
+        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileService fileService)
         {
             _productRead = productRead;
             _productWrite = productWrite;
-            _environment = environment;
             _fileService = fileService;
         }
         [HttpGet]
