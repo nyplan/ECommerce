@@ -15,11 +15,13 @@ namespace ECommerce.API.Controllers
         private readonly IProductReadRepository _productRead;
         private readonly IProductWriteRepository _productWrite;
         private readonly IFileService _fileService;
-        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileService fileService)
+        private readonly IFileWriteRepository _fileWrite;
+        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileService fileService, IFileWriteRepository fileWrite)
         {
             _productRead = productRead;
             _productWrite = productWrite;
             _fileService = fileService;
+            _fileWrite = fileWrite;
         }
         [HttpGet]
         public IActionResult Get([FromQuery] Pagination pagination)
