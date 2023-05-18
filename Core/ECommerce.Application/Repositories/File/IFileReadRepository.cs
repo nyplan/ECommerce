@@ -1,7 +1,7 @@
-﻿using n = ECommerce.Domain.Entities;
+﻿using N = ECommerce.Domain.Entities;
 namespace ECommerce.Application.Repositories
 {
-    public interface IFileReadRepository : IReadRepository<n.File>
+    public interface IFileReadRepository : IReadRepository<N.File>
     {
     }
 }

@@ -1,7 +1,7 @@
-﻿using n = ECommerce.Domain.Entities;
+﻿using N = ECommerce.Domain.Entities;
 namespace ECommerce.Application.Repositories
 {
-    public interface IFileWriteRepository : IWriteRepository<n.File>
+    public interface IFileWriteRepository : IWriteRepository<N.File>
     {
     }
 }

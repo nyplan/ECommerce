@@ -1,8 +1,8 @@
-﻿using n = ECommerce.Domain.Entities;
+﻿using N = ECommerce.Domain.Entities;
 
 namespace ECommerce.Application.Repositories
 {
-    public interface IProductImageFileReadRepository : IReadRepository<n.ProductImageFile>
+    public interface IProductImageFileReadRepository : IReadRepository<N.ProductImageFile>
     {
     }
 }

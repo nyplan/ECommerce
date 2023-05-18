@@ -1,11 +1,11 @@
 ﻿using ECommerce.Application.Repositories;
 using ECommerce.Persistence.Contexts;
-using n = ECommerce.Domain.Entities;
+using N = ECommerce.Domain.Entities;
 
 
 namespace ECommerce.Persistence.Repositories
 {
-    internal class InvoiceFileWriteRepository : WriteRepository<n.InvoiceFile>, IInvoiceFileWriteRepository
+    internal class InvoiceFileWriteRepository : WriteRepository<N.InvoiceFile>, IInvoiceFileWriteRepository
     {
         public InvoiceFileWriteRepository(ECommerceDbContext context) : base(context)
         {

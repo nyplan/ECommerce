@@ -1,10 +1,10 @@
 ﻿using ECommerce.Application.Repositories;
 using ECommerce.Persistence.Contexts;
-using n = ECommerce.Domain.Entities;
+using N = ECommerce.Domain.Entities;
 
 namespace ECommerce.Persistence.Repositories
 {
-    public class ProductImageFileWriteRepository : WriteRepository<n.ProductImageFile>, IProductImageFileWriteRepository
+    public class ProductImageFileWriteRepository : WriteRepository<N.ProductImageFile>, IProductImageFileWriteRepository
     {
         public ProductImageFileWriteRepository(ECommerceDbContext context) : base(context)
         {

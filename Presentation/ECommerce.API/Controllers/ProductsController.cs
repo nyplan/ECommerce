@@ -1,8 +1,9 @@
-﻿using ECommerce.Application.Repositories;
+﻿using ECommerce.Application.Abstractions.Storage;
+using ECommerce.Application.Repositories;
 using ECommerce.Application.RequestParameters;
-using ECommerce.Application.Services;
 using ECommerce.Application.ViewModels.Products;
 using ECommerce.Domain.Entities;
+using ECommerce.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -14,24 +15,24 @@ namespace ECommerce.API.Controllers
     {
         private readonly IProductReadRepository _productRead;
         private readonly IProductWriteRepository _productWrite;
-        private readonly IFileService _fileService;
         private readonly IFileWriteRepository _fileWrite;
         private readonly IFileReadRepository _fileRead;
         private readonly IProductImageFileReadRepository _productImageRead;
         private readonly IProductImageFileWriteRepository _productImageWrite;
         private readonly IInvoiceFileReadRepository _invoiceFileRead;
         private readonly IInvoiceFileWriteRepository _invoiceFileWrite;
-        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileService fileService, IFileWriteRepository fileWrite, IFileReadRepository fileRead, IProductImageFileReadRepository productImageRead, IProductImageFileWriteRepository productImageWrite, IInvoiceFileReadRepository invoiceFileRead, IInvoiceFileWriteRepository invoiceFileWrite)
+        readonly IStorageService _storageService;
+        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileWriteRepository fileWrite, IFileReadRepository fileRead, IProductImageFileReadRepository productImageRead, IProductImageFileWriteRepository productImageWrite, IInvoiceFileReadRepository invoiceFileRead, IInvoiceFileWriteRepository invoiceFileWrite, IStorageService storageService)
         {
             _productRead = productRead;
             _productWrite = productWrite;
-            _fileService = fileService;
             _fileWrite = fileWrite;
             _fileRead = fileRead;
             _productImageRead = productImageRead;
             _productImageWrite = productImageWrite;
             _invoiceFileRead = invoiceFileRead;
             _invoiceFileWrite = invoiceFileWrite;
+            _storageService = storageService;
         }
         [HttpGet]
         public IActionResult Get([FromQuery] Pagination pagination)
@@ -90,7 +91,17 @@ namespace ECommerce.API.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Upload()
         {
-            var datas = await _fileService.UploadAsync("resource/files", Request.Form.Files);
+            var datas = await _storageService.UploadAsync("resource/files", Request.Form.Files);
+            //var datas = await _fileService.UploadAsync("resource/files", Request.Form.Files);
+            await _productImageWrite.AddRangeAsync(datas.Select(d => new ProductImageFile()
+            {
+                FileName = d.fileName,
+                Path = d.pathOrContainerName,
+                Storage = _storageService.StorageName
+            }).ToList());
+            await _productImageWrite.SaveAsync();
+
+            //var datas = await _fileService.UploadAsync("resource/files", Request.Form.Files);
             //_productImageWrite.AddRangeAsync(datas.Select(d => new ProductImageFile()
             //{
             //    FileName = d.fileName,
@@ -106,12 +117,12 @@ namespace ECommerce.API.Controllers
             //}).ToList());
             //await _invoiceFileWrite.SaveAsync();
 
-            _fileWrite.AddRangeAsync(datas.Select(d => new Domain.Entities.File()
-            {
-                FileName = d.fileName,
-                Path = d.path
-            }).ToList());
-            await _fileWrite.SaveAsync();
+            //_fileWrite.AddRangeAsync(datas.Select(d => new Domain.Entities.File()
+            //{
+            //    FileName = d.fileName,
+            //    Path = d.path
+            //}).ToList());
+            //await _fileWrite.SaveAsync();
 
             //var d1 = _fileRead.GetAll();
             //var d2 = _productImageRead.GetAll();
