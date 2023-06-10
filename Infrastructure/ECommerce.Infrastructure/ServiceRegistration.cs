@@ -2,6 +2,7 @@
 using ECommerce.Infrastructure.Enums;
 using ECommerce.Infrastructure.Services;
 using ECommerce.Infrastructure.Services.Storage;
+using ECommerce.Infrastructure.Services.Storage.Azure;
 using ECommerce.Infrastructure.Services.Storage.Local;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +14,7 @@ namespace ECommerce.Infrastructure
         {
             services.AddScoped<IStorageService, StorageService>();
         }
-        public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorage
+        public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : Storage, IStorage
         {
             serviceCollection.AddScoped<IStorage, T>();
         }
@@ -26,7 +27,7 @@ namespace ECommerce.Infrastructure
                     serviceCollection.AddScoped<IStorage, LocalStorage>();
                     break;
                 case StorageType.Azure:
-
+                    serviceCollection.AddScoped<IStorage, AzureStorage>();
                     break;
                 case StorageType.AWS:
 
