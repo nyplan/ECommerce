@@ -89,44 +89,21 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload(string id)
         {
-            var datas = await _storageService.UploadAsync("files", Request.Form.Files);
-            //var datas = await _fileService.UploadAsync("resource/files", Request.Form.Files);
-            await _productImageWrite.AddRangeAsync(datas.Select(d => new ProductImageFile()
+            List<(string fileName, string pathOrContainerName)> result = await _storageService.UploadAsync("photo-images", Request.Form.Files);
+
+            Product product = await _productRead.GetByIdAsync(id);
+
+            await _productImageWrite.AddRangeAsync(result.Select(r => new ProductImageFile()
             {
-                FileName = d.fileName,
-                Path = d.pathOrContainerName,
-                Storage = _storageService.StorageName
+                FileName = r.fileName,
+                Path = r.pathOrContainerName,
+                Storage = _storageService.StorageName,
+                Products = new List<Product>() { product }
             }).ToList());
+
             await _productImageWrite.SaveAsync();
-
-            //var datas = await _fileService.UploadAsync("resource/files", Request.Form.Files);
-            //_productImageWrite.AddRangeAsync(datas.Select(d => new ProductImageFile()
-            //{
-            //    FileName = d.fileName,
-            //    Path = d.path
-            //}).ToList());
-            //await _productImageWrite.SaveAsync();
-
-            //_invoiceFileWrite.AddRangeAsync(datas.Select(d => new InvoiceFile()
-            //{
-            //    FileName = d.fileName,
-            //    Path = d.path,
-            //    Price = 20
-            //}).ToList());
-            //await _invoiceFileWrite.SaveAsync();
-
-            //_fileWrite.AddRangeAsync(datas.Select(d => new Domain.Entities.File()
-            //{
-            //    FileName = d.fileName,
-            //    Path = d.path
-            //}).ToList());
-            //await _fileWrite.SaveAsync();
-
-            //var d1 = _fileRead.GetAll();
-            //var d2 = _productImageRead.GetAll();
-            //var d3 = _invoiceFileRead.GetAll();
 
             return Ok();
         }
