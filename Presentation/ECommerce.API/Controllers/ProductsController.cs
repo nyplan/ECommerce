@@ -3,8 +3,8 @@ using ECommerce.Application.Repositories;
 using ECommerce.Application.RequestParameters;
 using ECommerce.Application.ViewModels.Products;
 using ECommerce.Domain.Entities;
-using ECommerce.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace ECommerce.API.Controllers
@@ -22,7 +22,8 @@ namespace ECommerce.API.Controllers
         private readonly IInvoiceFileReadRepository _invoiceFileRead;
         private readonly IInvoiceFileWriteRepository _invoiceFileWrite;
         readonly IStorageService _storageService;
-        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileWriteRepository fileWrite, IFileReadRepository fileRead, IProductImageFileReadRepository productImageRead, IProductImageFileWriteRepository productImageWrite, IInvoiceFileReadRepository invoiceFileRead, IInvoiceFileWriteRepository invoiceFileWrite, IStorageService storageService)
+        readonly IConfiguration _configuration;
+        public ProductsController(IProductReadRepository productRead, IProductWriteRepository productWrite, IFileWriteRepository fileWrite, IFileReadRepository fileRead, IProductImageFileReadRepository productImageRead, IProductImageFileWriteRepository productImageWrite, IInvoiceFileReadRepository invoiceFileRead, IInvoiceFileWriteRepository invoiceFileWrite, IStorageService storageService, IConfiguration configuration)
         {
             _productRead = productRead;
             _productWrite = productWrite;
@@ -33,6 +34,7 @@ namespace ECommerce.API.Controllers
             _invoiceFileRead = invoiceFileRead;
             _invoiceFileWrite = invoiceFileWrite;
             _storageService = storageService;
+            _configuration = configuration;
         }
         [HttpGet]
         public IActionResult Get([FromQuery] Pagination pagination)
@@ -108,5 +110,28 @@ namespace ECommerce.API.Controllers
             return Ok();
         }
 
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetProductImages(Guid id)
+        {
+            Product? product = await _productRead.Table.Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            return Ok(product.Images.Select(p => new
+            {
+                Path = $"{_configuration["BaseStorageUrl"]}/{p.Path}",
+                p.FileName,
+                p.Id
+            }));
+        }
+
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> DeleteProductImage(Guid id, Guid imageId)
+        {
+            Product? product = await _productRead.Table.Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            ProductImageFile? imageFile =  product?.Images.FirstOrDefault(p => p.Id == imageId);
+            product?.Images.Remove(imageFile);
+            await _productWrite.SaveAsync();
+            return Ok();
+        }
     }
 }
