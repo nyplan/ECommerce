@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace ECommerce.Application.Features.Queries.GetAllProducts
+namespace ECommerce.Application.Features.Queries.Product.GetAllProducts
 {
-    public class GetAllProductQueryRequest : IRequest<GetAllProductQueryResponse>
+    public class ProductsQueryRequest : IRequest<ProductsQueryResponse>
     {
         //public Pagination Pagination { get; set; }
         public int Page { get; set; } = 0;

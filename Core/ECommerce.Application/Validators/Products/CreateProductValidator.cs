@@ -1,4 +1,4 @@
-﻿using ECommerce.Application.Features.Commands.CreateProduct;
+﻿using ECommerce.Application.Features.Commands.Product.CreateProduct;
 using FluentValidation;
 
 namespace ECommerce.Application.Validators.Products

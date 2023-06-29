@@ -1,7 +1,7 @@
 ﻿using ECommerce.Application.Repositories;
 using MediatR;
 
-namespace ECommerce.Application.Features.Commands.CreateProduct
+namespace ECommerce.Application.Features.Commands.Product.CreateProduct
 {
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandRequest, CreateProductCommandResponse>
     {

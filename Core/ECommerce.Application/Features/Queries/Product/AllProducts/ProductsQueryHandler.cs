@@ -1,17 +1,17 @@
 ﻿using ECommerce.Application.Repositories;
 using MediatR;
 
-namespace ECommerce.Application.Features.Queries.GetAllProducts
+namespace ECommerce.Application.Features.Queries.Product.GetAllProducts
 {
-    public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQueryRequest, GetAllProductQueryResponse>
+    public class ProductsQueryHandler : IRequestHandler<ProductsQueryRequest, ProductsQueryResponse>
     {
         private readonly IProductReadRepository _productReadRepository;
-        public GetAllProductQueryHandler(IProductReadRepository productReadRepository)
+        public ProductsQueryHandler(IProductReadRepository productReadRepository)
         {
             _productReadRepository = productReadRepository;
         }
 
-        public async Task<GetAllProductQueryResponse> Handle(GetAllProductQueryRequest request, CancellationToken cancellationToken)
+        public async Task<ProductsQueryResponse> Handle(ProductsQueryRequest request, CancellationToken cancellationToken)
         {
             var totalCount = _productReadRepository.GetAll(false).Count();
             var products = _productReadRepository.GetAll(false).Skip(request.Page * request.Size).Take(request.Size).Select(p => new
