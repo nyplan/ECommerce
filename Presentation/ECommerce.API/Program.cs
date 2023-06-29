@@ -1,8 +1,8 @@
+using ECommerce.Application;
 using ECommerce.Application.Validators.Products;
 using ECommerce.Infrastructure;
 using ECommerce.Infrastructure.Filters;
 using ECommerce.Infrastructure.Services.Storage.Azure;
-using ECommerce.Infrastructure.Services.Storage.Local;
 using ECommerce.Persistence;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddApplicationServices();
 
 //builder.Services.AddStorage<LocalStorage>();
 builder.Services.AddStorage<AzureStorage>();
