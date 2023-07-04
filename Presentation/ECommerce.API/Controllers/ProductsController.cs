@@ -6,6 +6,7 @@ using ECommerce.Application.Features.Commands.ProductImage.UploadProductImage;
 using ECommerce.Application.Features.Queries.Product.ById;
 using ECommerce.Application.Features.Queries.Product.GetAllProducts;
 using ECommerce.Application.Features.Queries.ProductImage.ProductImages;
+using ECommerce.Infrastructure.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

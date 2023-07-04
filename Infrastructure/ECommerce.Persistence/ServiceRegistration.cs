@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.Repositories;
+using ECommerce.Domain.Entities.Identity;
 using ECommerce.Persistence.Contexts;
 using ECommerce.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,15 @@ namespace ECommerce.Persistence
         public static void AddPersistenceServices(this IServiceCollection services)
         {
             services.AddDbContext<ECommerceDbContext>(options => options.UseNpgsql(Configuration.ConnectionString));
+            services.AddIdentity<User,Role>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 3;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<ECommerceDbContext>();
+
             services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
             services.AddScoped<ICustomerWriteRepository, CustomerWriteRepository>();
             services.AddScoped<IOrderReadRepository, OrderReadRepository>();
