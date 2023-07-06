@@ -1,4 +1,6 @@
-﻿using ECommerce.Application.Exceptions;
+﻿using ECommerce.Application.Abstractions.Token;
+using ECommerce.Application.DTOs.Tokens;
+using ECommerce.Application.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using N = ECommerce.Domain.Entities.Identity;
@@ -9,10 +11,12 @@ namespace ECommerce.Application.Features.Commands.User.LoginUser
     {
         private readonly UserManager<N.User> _userManager;
         private readonly SignInManager<N.User> _signInManager;
-        public LoginUserCommandHandler(UserManager<N.User> userManager, SignInManager<N.User> signInManager)
+        private readonly ITokenHandler _tokenHandler;
+        public LoginUserCommandHandler(UserManager<N.User> userManager, SignInManager<N.User> signInManager, ITokenHandler tokenHandler)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _tokenHandler = tokenHandler;
         }
 
         public async Task<LoginUserCommandResponse> Handle(LoginUserCommandRequest request, CancellationToken cancellationToken)
@@ -22,9 +26,10 @@ namespace ECommerce.Application.Features.Commands.User.LoginUser
             SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (result.Succeeded)
             {
-                // Authorization will be here
+                Token token = _tokenHandler.CreateAccessToken(10);
+                return new LoginUserSuccessCommandResponse() { Token = token };
             }
-            return new();
+            throw new AuthenticationException();
         }
     }
 }
