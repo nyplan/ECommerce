@@ -10,6 +10,7 @@ namespace ECommerce.Application
         {
             //services.AddMediatR(typeof(ServiceRegistration));
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+            services.AddHttpClient();
         }
     }
 }
