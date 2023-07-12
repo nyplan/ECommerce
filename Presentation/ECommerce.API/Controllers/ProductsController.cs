@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Features.Commands.Product.CreateProduct;
+﻿using System.Net;
+using ECommerce.Application.Features.Commands.Product.CreateProduct;
 using ECommerce.Application.Features.Commands.Product.DeleteProduct;
 using ECommerce.Application.Features.Commands.Product.UpdateProduct;
 using ECommerce.Application.Features.Commands.ProductImage.DeleteProductImage;
@@ -6,11 +7,9 @@ using ECommerce.Application.Features.Commands.ProductImage.UploadProductImage;
 using ECommerce.Application.Features.Queries.Product.ById;
 using ECommerce.Application.Features.Queries.Product.GetAllProducts;
 using ECommerce.Application.Features.Queries.ProductImage.ProductImages;
-using ECommerce.Infrastructure.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace ECommerce.API.Controllers
 {

@@ -1,7 +1,10 @@
-﻿using ECommerce.Application.Repositories;
+﻿using ECommerce.Application.Abstractions.Services;
+using ECommerce.Application.Abstractions.Services.Authentications;
+using ECommerce.Application.Repositories;
 using ECommerce.Domain.Entities.Identity;
 using ECommerce.Persistence.Contexts;
 using ECommerce.Persistence.Repositories;
+using ECommerce.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +37,10 @@ namespace ECommerce.Persistence
             services.AddScoped<IInvoiceFileReadRepository, InvoiceFileReadRepository>();
             services.AddScoped<IInvoiceFileWriteRepository, InvoiceFileWriteRepository>();
 
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IExternalAuthentication, AuthService>();
+            services.AddScoped<IInternalAuthentication, AuthService>();
         }
     }
 }

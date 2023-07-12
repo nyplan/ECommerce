@@ -1,35 +1,34 @@
-﻿using ECommerce.Application.Exceptions;
+﻿using ECommerce.Application.Abstractions.Services;
+using ECommerce.Application.DTOs.User;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace ECommerce.Application.Features.Commands.User.CreateUser
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommandRequest, CreateUserCommandResponse>
     {
-        private readonly UserManager<Domain.Entities.Identity.User> _userManager;
-        public CreateUserCommandHandler(UserManager<Domain.Entities.Identity.User> userManager)
+        private readonly IUserService _userService;
+
+        public CreateUserCommandHandler(IUserService userService)
         {
-            _userManager = userManager;
+            _userService = userService;
         }
 
-        public async Task<CreateUserCommandResponse> Handle(CreateUserCommandRequest request, CancellationToken cancellationToken)
+        public async Task<CreateUserCommandResponse> Handle(CreateUserCommandRequest request,
+            CancellationToken cancellationToken)
         {
-            IdentityResult result = await _userManager.CreateAsync(new Domain.Entities.Identity.User()
+            CreateUserResponse response = await _userService.CreateAsync(new()
             {
-                Id = Guid.NewGuid().ToString(),
-                UserName = request.Username,
                 Email = request.Email,
-                NameSurname = request.NameSurname
-            }, request.Password);
-
-            CreateUserCommandResponse response = new() { Succeeded = result.Succeeded };
-            
-            if (result.Succeeded)
-                response.Message = "User created successfully";
-            else
-                foreach (var error in result.Errors)
-                    response.Message += $"{error.Code} - {error.Description}";
-            return response;
+                Username = request.Username,
+                NameSurname = request.NameSurname,
+                Password = request.Password,
+                PasswordConfirm = request.PasswordConfirm
+            });
+            return new()
+            {
+                Message = response.Message,
+                Succeeded = response.Succeeded
+            };
         }
     }
 }
