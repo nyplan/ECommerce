@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Text.Json;
 using ECommerce.Application.Abstractions.Services;
 using ECommerce.Application.Abstractions.Token;
 using ECommerce.Application.DTOs.Facebook;
@@ -7,7 +9,9 @@ using ECommerce.Application.Exceptions;
 using ECommerce.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ECommerce.Persistence.Services;
 
@@ -18,14 +22,16 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly UserManager<User> _userManager;
     private readonly ITokenHandler _tokenHandler;
+    private readonly IUserService _userService;
 
     public AuthService(IHttpClientFactory httpClientFactory, IConfiguration configuration,
-        UserManager<User> userManager, ITokenHandler tokenHandler, SignInManager<User> signInManager)
+        UserManager<User> userManager, ITokenHandler tokenHandler, SignInManager<User> signInManager, IUserService userService)
     {
         _configuration = configuration;
         _userManager = userManager;
         _tokenHandler = tokenHandler;
         _signInManager = signInManager;
+        _userService = userService;
         _httpClient = httpClientFactory.CreateClient();
     }
     private async Task<Token> CreateUserExternalAsync(User? user, string email, string name, UserLoginInfo info, int lifetime)
@@ -50,7 +56,9 @@ public class AuthService : IAuthService
 
         if (!result) throw new Exception("Invalid external authentication");
         await _userManager.AddLoginAsync(user, info);
-        return _tokenHandler.CreateAccessToken(lifetime);
+        Token token = _tokenHandler.CreateAccessToken(lifetime);
+        await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
+        return token;
     }
 
     public async Task<Token> FacebookLoginAsync(string authToken, int lifetime)
@@ -84,9 +92,22 @@ public class AuthService : IAuthService
              await _userManager.FindByEmailAsync(usernameOrEmail)) ?? throw new NotFoundUserException();
 
         SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-        if (result.Succeeded)
-            return _tokenHandler.CreateAccessToken(10);
-        throw new AuthenticationException();
+        if (!result.Succeeded) throw new AuthenticationException();
+        Token token = _tokenHandler.CreateAccessToken(10);
+        await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
+        return token;
+    }
+
+    public async Task<Token> RefreshLoginAsync(string refreshToken)
+    {
+        User? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        
+        if (user == null || user?.RefreshTokenExpires < DateTime.UtcNow)
+            throw new NotFoundUserException();
+        
+        Token token = _tokenHandler.CreateAccessToken(15);
+        await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
+        return token;
     }
 
     public async Task<Token> GoogleLoginAsync(string idToken, int lifetime)
@@ -104,4 +125,33 @@ public class AuthService : IAuthService
 
         return await CreateUserExternalAsync(user, payload.Email, payload.Name, info, lifetime);
     }
+    
+    public string DecodeRefreshToken(string encodedToken, string secretKey)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(secretKey);
+
+        try
+        {
+            tokenHandler.ValidateToken(encodedToken, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out var validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var refreshToken = jwtToken.Claims.First(x => x.Type == "refreshToken").Value;
+
+            return refreshToken;
+        }
+        catch
+        {
+            // Token validation failed
+            return null;
+        }
+    }
+
 }
