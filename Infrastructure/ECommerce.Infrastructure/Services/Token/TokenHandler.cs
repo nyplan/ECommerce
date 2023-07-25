@@ -1,9 +1,9 @@
 ﻿using ECommerce.Application.Abstractions.Token;
+using ECommerce.Domain.Entities.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace ECommerce.Infrastructure.Services.Token
@@ -16,55 +16,48 @@ namespace ECommerce.Infrastructure.Services.Token
             _configuration = configuration;
         }
 
-        public Application.DTOs.Tokens.Token CreateAccessToken(int minute)
+        public Application.DTOs.Tokens.Token CreateAccessToken(int minute, User user)
         {
             Application.DTOs.Tokens.Token token = new();
 
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
 
             SigningCredentials signingCredentials = new(securityKey, SecurityAlgorithms.HmacSha256);
 
-            token.Expiration = DateTime.UtcNow.AddSeconds(minute);
+            token.Expiration = DateTime.UtcNow.AddMinutes(minute);
 
             JwtSecurityToken securityToken = new(
                 audience: _configuration["Jwt:Audience"],
                 issuer: _configuration["Jwt:Issuer"],
                 expires: token.Expiration,
                 notBefore: DateTime.UtcNow,
-                signingCredentials: signingCredentials);
+                signingCredentials: signingCredentials
+                /*claims: new List<Claim>() { new(ClaimTypes.Name, user.UserName!) }*/);
 
             JwtSecurityTokenHandler tokenHandler = new();
 
             token.AccessToken = tokenHandler.WriteToken(securityToken);
-            token.RefreshToken = EncodeRefreshToken(CreateRefreshToken(), _configuration["Jwt:Key"]);
+            token.RefreshToken = CreateRefreshToken(token.Expiration);
             return token;
         }
 
-        public string CreateRefreshToken()
+        public string CreateRefreshToken(DateTime accessTokenExpires)
         {
-            byte[] number = new byte[32];
-            using RandomNumberGenerator random = RandomNumberGenerator.Create();
-            random.GetBytes(number);
-            return Convert.ToBase64String(number);
-        }
-        
-        public string EncodeRefreshToken(string refreshToken, string secretKey)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
             var claims = new[]
-            {
-                new Claim("refreshToken", refreshToken)
+             {
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
             var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(7),
-                signingCredentials: credentials
+                expires: accessTokenExpires.AddMinutes(15),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)), SecurityAlgorithms.HmacSha256)
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        
     }
 }

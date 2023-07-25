@@ -1,32 +1,36 @@
-﻿using System.Net;
-using ECommerce.Application.Features.Commands.Product.CreateProduct;
+﻿using ECommerce.Application.Features.Commands.Product.CreateProduct;
 using ECommerce.Application.Features.Commands.Product.DeleteProduct;
 using ECommerce.Application.Features.Commands.Product.UpdateProduct;
 using ECommerce.Application.Features.Commands.ProductImage.DeleteProductImage;
 using ECommerce.Application.Features.Commands.ProductImage.UploadProductImage;
+using ECommerce.Application.Features.Commands.ProductImageFile.ChangeShowCaseImage;
 using ECommerce.Application.Features.Queries.Product.ById;
 using ECommerce.Application.Features.Queries.Product.GetAllProducts;
 using ECommerce.Application.Features.Queries.ProductImage.ProductImages;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace ECommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
-
-        public ProductsController(IMediator mediator)
+        readonly ILogger<ProductsController> _logger;
+        public ProductsController(IMediator mediator, ILogger<ProductsController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAsync([FromQuery] ProductsQueryRequest request)
         {
             ProductsQueryResponse response = await _mediator.Send(request);
@@ -89,5 +93,13 @@ namespace ECommerce.API.Controllers
             await _mediator.Send(request);
             return Ok();
         }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ChangeShowcaseImage([FromQuery] ChangeShowcaseImageCommandRequest changeShowcaseImageCommandRequest)
+        {
+            ChangeShowcaseImageCommandResponse response = await _mediator.Send(changeShowcaseImageCommandRequest);
+            return Ok(response);
+        }
+
     }
 }

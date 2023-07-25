@@ -56,7 +56,7 @@ public class AuthService : IAuthService
 
         if (!result) throw new Exception("Invalid external authentication");
         await _userManager.AddLoginAsync(user, info);
-        Token token = _tokenHandler.CreateAccessToken(lifetime);
+        Token token = _tokenHandler.CreateAccessToken(lifetime, user);
         await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
         return token;
     }
@@ -93,7 +93,7 @@ public class AuthService : IAuthService
 
         SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
         if (!result.Succeeded) throw new AuthenticationException();
-        Token token = _tokenHandler.CreateAccessToken(10);
+        Token token = _tokenHandler.CreateAccessToken(15, user);
         await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
         return token;
     }
@@ -105,7 +105,7 @@ public class AuthService : IAuthService
         if (user == null || user?.RefreshTokenExpires < DateTime.UtcNow)
             throw new NotFoundUserException();
         
-        Token token = _tokenHandler.CreateAccessToken(15);
+        Token token = _tokenHandler.CreateAccessToken(15, user);
         await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
         return token;
     }
