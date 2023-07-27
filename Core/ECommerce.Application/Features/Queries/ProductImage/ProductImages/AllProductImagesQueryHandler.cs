@@ -7,17 +7,17 @@ namespace ECommerce.Application.Features.Queries.ProductImage.ProductImages
 {
     public class AllProductImagesQueryHandler : IRequestHandler<AllProductImagesQueryRequest, List<AllProductImagesQueryResponse>>
     {
-        private readonly IProductReadRepository _productReadRepository;
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
         private readonly IConfiguration _configuration;
-        public AllProductImagesQueryHandler(IProductReadRepository productReadRepository, IConfiguration configuration)
+        public AllProductImagesQueryHandler(IRepository<Domain.Entities.Product> productRepository, IConfiguration configuration)
         {
-            _productReadRepository = productReadRepository;
+            _productRepository = productRepository;
             _configuration = configuration;
         }
 
         public async Task<List<AllProductImagesQueryResponse>> Handle(AllProductImagesQueryRequest request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Product? product = await _productReadRepository.Table.Include(p => p.Images)
+            Domain.Entities.Product? product = await _productRepository.Table.Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == request.Id);
             return product.Images.Select(p => new AllProductImagesQueryResponse()
             {

@@ -5,15 +5,15 @@ namespace ECommerce.Application.Features.Queries.Product.ById
 {
     public class ProductByIdQueryHandler : IRequestHandler<ProductByIdQueryRequest, ProductByIdQueryResponse>
     {
-        private readonly IProductReadRepository _productReadRepository;
-        public ProductByIdQueryHandler(IProductReadRepository productReadRepository)
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
+        public ProductByIdQueryHandler(IRepository<Domain.Entities.Product> productRepository)
         {
-            _productReadRepository = productReadRepository;
+            _productRepository = productRepository;
         }
 
         async Task<ProductByIdQueryResponse> IRequestHandler<ProductByIdQueryRequest, ProductByIdQueryResponse>.Handle(ProductByIdQueryRequest request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Product product = await _productReadRepository.GetByIdAsync(request.Id, false);
+            Domain.Entities.Product product = await _productRepository.GetByIdAsync(request.Id, false);
             return new() 
             {
                 Name = product.Name,

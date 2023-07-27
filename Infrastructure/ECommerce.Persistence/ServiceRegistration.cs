@@ -24,23 +24,13 @@ namespace ECommerce.Persistence
                 options.Password.RequireUppercase = false;
             }).AddEntityFrameworkStores<ECommerceDbContext>();
 
-            services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
-            services.AddScoped<ICustomerWriteRepository, CustomerWriteRepository>();
-            services.AddScoped<IOrderReadRepository, OrderReadRepository>();
-            services.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
-            services.AddScoped<IProductReadRepository, ProductReadRepository>();
-            services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
-            services.AddScoped<IFileReadRepository, FileReadRepository>();
-            services.AddScoped<IFileWriteRepository, FileWriteRepository>();
-            services.AddScoped<IProductImageFileWriteRepository, ProductImageFileWriteRepository>();
-            services.AddScoped<IProductImageFileReadRepository, ProductImageFileReadRepository>();
-            services.AddScoped<IInvoiceFileReadRepository, InvoiceFileReadRepository>();
-            services.AddScoped<IInvoiceFileWriteRepository, InvoiceFileWriteRepository>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IExternalAuthentication, AuthService>();
             services.AddScoped<IInternalAuthentication, AuthService>();
+            services.AddScoped<IBasketService, BasketService>();
         }
     }
 }

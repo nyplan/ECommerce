@@ -5,22 +5,22 @@ namespace ECommerce.Application.Features.Commands.Product.CreateProduct
 {
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandRequest, CreateProductCommandResponse>
     {
-        private readonly IProductWriteRepository _productWriteRepository;
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
 
-        public CreateProductCommandHandler(IProductWriteRepository productWriteRepository)
+        public CreateProductCommandHandler(IRepository<Domain.Entities.Product> productRepository)
         {
-            _productWriteRepository = productWriteRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<CreateProductCommandResponse> Handle(CreateProductCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productWriteRepository.AddAsync(new()
+            await _productRepository.AddAsync(new()
             {
                 Name = request.Name,
                 Stock = request.Stock,
                 Price = request.Price
             });
-            await _productWriteRepository.SaveAsync();
+            await _productRepository.SaveAsync();
             return new();
         }
     }

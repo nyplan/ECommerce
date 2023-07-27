@@ -2,4 +2,5 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=317D76FA_002D0820_002D411C_002DB7E0_002D22599D79812A_002Fd_003AFeatures_002Fd_003ACommands_002Fd_003AUser_002Fd_003AGoogleLogin_002Ff_003AGoogleLoginCommandHandler_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">VISIBLE_FILES</s:String>
 	<s:String x:Key="/Default/CodeInspection/PencilsConfiguration/ActualSeverity/@EntryValue">SUGGESTION</s:String>
+	<s:Boolean x:Key="/Default/Environment/InlayHints/GeneralInlayHintsOptions/EnableInlayHints/@EntryValue">False</s:Boolean>
 	</wpf:ResourceDictionary>

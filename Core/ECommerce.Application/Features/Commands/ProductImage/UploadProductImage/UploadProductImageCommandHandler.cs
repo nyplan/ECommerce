@@ -8,22 +8,23 @@ namespace ECommerce.Application.Features.Commands.ProductImage.UploadProductImag
     public class UploadProductImageCommandHandler : IRequestHandler<UploadProductImageCommandRequest, UploadProductImageCommandResponse>
     {
         private readonly IStorageService _storageService;
-        private readonly IProductReadRepository _productReadRepository;
-        private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
-        public UploadProductImageCommandHandler(IStorageService storageService, IProductReadRepository productReadRepository, IProductImageFileWriteRepository productImageFileWriteRepository)
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
+        private readonly IRepository<Domain.Entities.ProductImageFile> _productImageFileRepository;
+        
+        public UploadProductImageCommandHandler(IStorageService storageService, IRepository<Domain.Entities.Product> productRepository, IRepository<Domain.Entities.ProductImageFile> productImageFileRepository)
         {
             _storageService = storageService;
-            _productReadRepository = productReadRepository;
-            _productImageFileWriteRepository = productImageFileWriteRepository;
+            _productRepository = productRepository;
+            _productImageFileRepository = productImageFileRepository;
         }
 
         public async Task<UploadProductImageCommandResponse> Handle(UploadProductImageCommandRequest request, CancellationToken cancellationToken)
         {
             List<(string fileName, string pathOrContainerName)> result = await _storageService.UploadAsync("photo-images", request.Files);
 
-            Domain.Entities.Product product = await _productReadRepository.GetByIdAsync(request.Id);
+            Domain.Entities.Product product = await _productRepository.GetByIdAsync(request.Id);
 
-            await _productImageFileWriteRepository.AddRangeAsync(result.Select(r => new Domain.Entities.ProductImageFile
+            await _productImageFileRepository.AddRangeAsync(result.Select(r => new Domain.Entities.ProductImageFile
             {
                 FileName = r.fileName,
                 Path = r.pathOrContainerName,
@@ -31,7 +32,7 @@ namespace ECommerce.Application.Features.Commands.ProductImage.UploadProductImag
                 Products = new List<Domain.Entities.Product>() { product }
             }).ToList());
 
-            await _productImageFileWriteRepository.SaveAsync();
+            await _productImageFileRepository.SaveAsync();
 
             return new();
         }

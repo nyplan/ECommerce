@@ -5,21 +5,19 @@ namespace ECommerce.Application.Features.Commands.Product.UpdateProduct
 {
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommandRequest, UpdateProductCommandResponse>
     {
-        private readonly IProductReadRepository _productReadRepository;
-        private readonly IProductWriteRepository _productWriteRepository;
-        public UpdateProductCommandHandler(IProductReadRepository productReadRepository, IProductWriteRepository productWriteRepository)
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
+        public UpdateProductCommandHandler(IRepository<Domain.Entities.Product> productRepository)
         {
-            _productReadRepository = productReadRepository;
-            _productWriteRepository = productWriteRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<UpdateProductCommandResponse> Handle(UpdateProductCommandRequest request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Product product = await _productReadRepository.GetByIdAsync(request.Id);
+            Domain.Entities.Product product = await _productRepository.GetByIdAsync(request.Id);
             product.Name = request.Name;
             product.Stock = request.Stock;
             product.Price = request.Price;
-            await _productWriteRepository.SaveAsync();
+            await _productRepository.SaveAsync();
             return new();
         }
     }

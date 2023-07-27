@@ -7,5 +7,6 @@ namespace ECommerce.Domain.Entities.Identity
         public string NameSurname { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpires { get; set; }
+        public ICollection<Basket> Baskets { get; set; }
     }
 }

@@ -6,16 +6,16 @@ namespace ECommerce.Application.Features.Commands.ProductImageFile.ChangeShowCas
 {
     public class ChangeShowcaseImageCommandHandler : IRequestHandler<ChangeShowcaseImageCommandRequest, ChangeShowcaseImageCommandResponse>
     {
-        readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
+        readonly IRepository<Domain.Entities.ProductImageFile> _productImageFileRepository;
 
-        public ChangeShowcaseImageCommandHandler(IProductImageFileWriteRepository productImageFileWriteRepository)
+        public ChangeShowcaseImageCommandHandler(IRepository<Domain.Entities.ProductImageFile> productImageFileRepository)
         {
-            _productImageFileWriteRepository = productImageFileWriteRepository;
+            _productImageFileRepository = productImageFileRepository;
         }
 
         public async Task<ChangeShowcaseImageCommandResponse> Handle(ChangeShowcaseImageCommandRequest request, CancellationToken cancellationToken)
         {
-            var query = _productImageFileWriteRepository.Table
+            var query = _productImageFileRepository.Table
                       .Include(p => p.Products)
                       .SelectMany(p => p.Products, (pif, p) => new
                       {
@@ -32,7 +32,7 @@ namespace ECommerce.Application.Features.Commands.ProductImageFile.ChangeShowCas
             if (image != null)
                 image.pif.Showcase = true;
 
-            await _productImageFileWriteRepository.SaveAsync();
+            await _productImageFileRepository.SaveAsync();
 
             return new();
         }

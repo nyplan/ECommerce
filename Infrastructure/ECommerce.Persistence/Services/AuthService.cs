@@ -82,7 +82,7 @@ public class AuthService : IAuthService
 
         var info = new UserLoginInfo("FACEBOOK", validation.Data.UserId, "FACEBOOK");
         User? user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-        return await CreateUserExternalAsync(user, userInfo.Email, userInfo.Name, info, lifetime);
+        return await CreateUserExternalAsync(user, userInfo!.Email, userInfo.Name, info, lifetime);
     }
 
     public async Task<Token> LoginAsync(string usernameOrEmail, string password, int lifetime)
@@ -105,8 +105,8 @@ public class AuthService : IAuthService
         if (user == null || user?.RefreshTokenExpires < DateTime.UtcNow)
             throw new NotFoundUserException();
         
-        Token token = _tokenHandler.CreateAccessToken(15, user);
-        await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 15);
+        Token token = _tokenHandler.CreateAccessToken(15, user!);
+        await _userService.UpdateRefreshToken(token.RefreshToken, user!, token.Expiration, 15);
         return token;
     }
 
@@ -150,7 +150,7 @@ public class AuthService : IAuthService
         catch
         {
             // Token validation failed
-            return null;
+            return null!;
         }
     }
 

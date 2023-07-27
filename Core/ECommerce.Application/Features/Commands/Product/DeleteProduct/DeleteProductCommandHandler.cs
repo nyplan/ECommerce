@@ -5,17 +5,17 @@ namespace ECommerce.Application.Features.Commands.Product.DeleteProduct
 {
     public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommandRequest, DeleteProductCommandResponse>
     {
-        private readonly IProductWriteRepository _productWriteRepository;
+        private readonly IRepository<Domain.Entities.Product> _productRepository;
 
-        public DeleteProductCommandHandler(IProductWriteRepository productWriteRepository)
+        public DeleteProductCommandHandler(IRepository<Domain.Entities.Product> productRepository)
         {
-            _productWriteRepository = productWriteRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<DeleteProductCommandResponse> Handle(DeleteProductCommandRequest request, CancellationToken cancellationToken)
         {
-            await _productWriteRepository.RemoveAsync(request.Id);
-            await _productWriteRepository.SaveAsync();
+            await _productRepository.RemoveAsync(request.Id);
+            await _productRepository.SaveAsync();
             return new();
         }
     }

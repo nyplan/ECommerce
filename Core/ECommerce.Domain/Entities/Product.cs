@@ -9,5 +9,6 @@ namespace ECommerce.Domain.Entities
         public int Stock { get; set; }
         public ICollection<Order> Orders { get; set; }
         public ICollection<ProductImageFile> Images { get; set; }
+        public ICollection<BasketItem> BasketItems { get; set; }
     }
 }
